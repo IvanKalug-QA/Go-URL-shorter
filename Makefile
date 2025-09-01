@@ -9,4 +9,4 @@ vet: fmt
 	go vet ./...
 
 run: vet
-	go run ./cmd/shortener/main.go
+	go run ./cmd/shortener -a :8080
