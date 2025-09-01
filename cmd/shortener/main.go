@@ -5,5 +5,6 @@ import (
 )
 
 func main() {
-	service.StartServer()
+	ParseArgs()
+	service.StartServer(port)
 }

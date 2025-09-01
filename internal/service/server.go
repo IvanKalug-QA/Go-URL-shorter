@@ -1,13 +1,15 @@
 package service
 
 import (
+	"fmt"
+
 	"github.com/fasthttp/router"
 	"github.com/valyala/fasthttp"
 
 	"github.com/IvanKalug-QA/Go-URL-shorter/internal/handler"
 )
 
-func StartServer() {
+func StartServer(addr string) {
 	mux := router.New()
 	mux.GET(`/`, handler.MainPage)
 	mux.GET(`/{id}`, handler.MainPage)
@@ -15,7 +17,8 @@ func StartServer() {
 
 	handlerChain := fasthttp.CompressHandler(mux.Handler)
 
-	err := fasthttp.ListenAndServe(`:8080`, handlerChain)
+	fmt.Println("Runnig server on", addr)
+	err := fasthttp.ListenAndServe(addr, handlerChain)
 	if err != nil {
 		panic(err)
 	}
