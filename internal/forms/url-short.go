@@ -2,6 +2,7 @@ package forms
 
 const UrlForm = `<html>
     <head>
+    <meta charset="UTF-8">
     <title></title>
     </head>
     <body>

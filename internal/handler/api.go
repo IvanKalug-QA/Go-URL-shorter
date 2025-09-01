@@ -2,7 +2,8 @@ package handler
 
 import (
 	"encoding/json"
-	"net/http"
+
+	"github.com/valyala/fasthttp"
 
 	"github.com/IvanKalug-QA/Go-URL-shorter/internal/forms"
 	"github.com/IvanKalug-QA/Go-URL-shorter/internal/model"
@@ -15,50 +16,51 @@ var db = model.UrlShortDataBase{
 	UrlDict: make(map[string]string),
 }
 
-func MainPage(w http.ResponseWriter, r *http.Request) {
-	id := r.URL.Path[1:]
-	if id != "" {
-		GetUrlById(id, w, r)
+func MainPage(ctx *fasthttp.RequestCtx) {
+	id, ok := ctx.UserValue("id").(string)
+	if ok {
+		GetURLById(id, ctx)
 		return
 	}
-	if r.Method == http.MethodPost {
-		url := r.FormValue("url")
+	if ctx.IsPost() {
+		url := ctx.FormValue("url")
 		short := randstr.String(10)
-		db.Add(url, short)
+		db.Add(string(url), short)
 		subj := response.ShortUrl{
-			Status: http.StatusCreated,
+			Status: fasthttp.StatusCreated,
 			Url:    short,
 		}
 		resp, err := json.Marshal(subj)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			ctx.Error(err.Error(), fasthttp.StatusInternalServerError)
 			return
 		}
-		w.Header().Set("content-type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		w.Write(resp)
+		ctx.Response.Header.Set("content-type", "application/json")
+		ctx.SetStatusCode(fasthttp.StatusOK)
+		ctx.Write(resp)
 
 	} else {
-		w.Write([]byte(forms.UrlForm))
+		ctx.Response.Header.Set("Content-Type", "text/html")
+		ctx.WriteString(forms.UrlForm)
 	}
 }
 
-func GetUrlById(id string, w http.ResponseWriter, r *http.Request) {
+func GetURLById(id string, ctx *fasthttp.RequestCtx) {
 	original, has := db.GetUrl(id)
 	if !has {
-		http.Error(w, "Такого Url нет!", http.StatusNotFound)
+		ctx.Error("Такого Url нет!", fasthttp.StatusNotFound)
 		return
 	}
 	subj := response.OriginalUrl{
-		Status: http.StatusOK,
+		Status: fasthttp.StatusOK,
 		Url:    original,
 	}
 	resp, err := json.Marshal(subj)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		ctx.Error(err.Error(), fasthttp.StatusInternalServerError)
 		return
 	}
-	w.Header().Set("content-type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write(resp)
+	ctx.Response.Header.Set("content-type", "application/json")
+	ctx.SetStatusCode(fasthttp.StatusOK)
+	ctx.Write(resp)
 }
