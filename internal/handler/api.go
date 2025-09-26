@@ -30,7 +30,7 @@ func MainPage(ctx *fasthttp.RequestCtx) {
 			Status: fasthttp.StatusCreated,
 			Url:    short,
 		}
-		resp, err := json.Marshal(subj)
+		resp, err := json.MarshalIndent(subj, "", " ")
 		if err != nil {
 			ctx.Error(err.Error(), fasthttp.StatusInternalServerError)
 			return
@@ -55,7 +55,7 @@ func GetURLById(id string, ctx *fasthttp.RequestCtx) {
 		Status: fasthttp.StatusOK,
 		Url:    original,
 	}
-	resp, err := json.Marshal(subj)
+	resp, err := json.MarshalIndent(subj, "", " ")
 	if err != nil {
 		ctx.Error(err.Error(), fasthttp.StatusInternalServerError)
 		return
