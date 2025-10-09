@@ -2,8 +2,8 @@ package service
 
 import (
 	"fmt"
-	"strings"
 	"os"
+	"strings"
 
 	"github.com/fasthttp/router"
 	"github.com/valyala/fasthttp"
@@ -22,7 +22,7 @@ func StartServer(addr string) {
 
 	mux := router.New()
 	mux.GET(`/`, controler.LoggingMiddleware(GzipMiddleware(handler.MainPage)))
-  mux.GET(`/{id}`, controler.LoggingMiddleware(GzipMiddleware(handler.MainPage)))
+	mux.GET(`/{id}`, controler.LoggingMiddleware(GzipMiddleware(handler.MainPage)))
 	mux.POST(`/`, controler.LoggingMiddleware(GzipMiddleware(handler.MainPage)))
 
 	handlerChain := fasthttp.CompressHandler(mux.Handler)

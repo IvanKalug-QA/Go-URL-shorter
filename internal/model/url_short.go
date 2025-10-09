@@ -1,8 +1,9 @@
 package model
 
 type UrlShortDataBase struct {
-	Name    string
-	UrlDict map[string]string
+	Name     string
+	UrlDict  map[string]string
+	FilePath string
 }
 
 func (d *UrlShortDataBase) Add(original, short string) {

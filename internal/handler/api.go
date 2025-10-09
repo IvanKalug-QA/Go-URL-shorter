@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"os"
 
 	"github.com/valyala/fasthttp"
 
@@ -12,8 +13,9 @@ import (
 )
 
 var db = model.UrlShortDataBase{
-	Name:    "First Database",
-	UrlDict: make(map[string]string),
+	Name:     "First Database",
+	UrlDict:  make(map[string]string),
+	FilePath: "shorturl.json",
 }
 
 func MainPage(ctx *fasthttp.RequestCtx) {
@@ -30,11 +32,24 @@ func MainPage(ctx *fasthttp.RequestCtx) {
 			Status: fasthttp.StatusCreated,
 			Url:    short,
 		}
-		resp, err := json.Marshal(subj)
+		resp, err := json.MarshalIndent(subj, "", " ")
+		resp = append(resp, []byte(",")...)
+		file, errr := os.OpenFile(db.FilePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
+		if errr != nil {
+			ctx.Error(errr.Error(), fasthttp.StatusInternalServerError)
+			return
+		}
+		defer file.Close()
 		if err != nil {
 			ctx.Error(err.Error(), fasthttp.StatusInternalServerError)
 			return
 		}
+		_, file_err := file.Write(resp)
+		if file_err != nil {
+			ctx.Error(file_err.Error(), fasthttp.StatusInternalServerError)
+			return
+		}
+		resp = resp[:len(resp)-1]
 		ctx.Response.Header.Set("content-type", "application/json")
 		ctx.SetStatusCode(fasthttp.StatusOK)
 		ctx.Write(resp)
