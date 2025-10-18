@@ -24,6 +24,7 @@ func StartServer(addr string) {
 	mux.GET(`/`, controler.LoggingMiddleware(GzipMiddleware(handler.MainPage)))
 	mux.GET(`/{id}`, controler.LoggingMiddleware(GzipMiddleware(handler.MainPage)))
 	mux.POST(`/`, controler.LoggingMiddleware(GzipMiddleware(handler.MainPage)))
+	mux.GET(`/ping`, controler.LoggingMiddleware(GzipMiddleware(handler.Ping)))
 
 	handlerChain := fasthttp.CompressHandler(mux.Handler)
 

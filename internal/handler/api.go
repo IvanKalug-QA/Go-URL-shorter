@@ -1,11 +1,14 @@
 package handler
 
 import (
+	"context"
 	"encoding/json"
 	"os"
+	"time"
 
 	"github.com/valyala/fasthttp"
 
+	DB_version2 "github.com/IvanKalug-QA/Go-URL-shorter/internal/config/db"
 	"github.com/IvanKalug-QA/Go-URL-shorter/internal/forms"
 	"github.com/IvanKalug-QA/Go-URL-shorter/internal/model"
 	"github.com/IvanKalug-QA/Go-URL-shorter/internal/response"
@@ -78,4 +81,16 @@ func GetURLById(id string, ctx *fasthttp.RequestCtx) {
 	ctx.Response.Header.Set("content-type", "application/json")
 	ctx.SetStatusCode(fasthttp.StatusOK)
 	ctx.Write(resp)
+}
+
+func Ping(ct *fasthttp.RequestCtx) {
+	Db := DB_version2.GetDB()
+	defer Db.Close()
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+	if err := Db.PingContext(ctx); err != nil {
+		ct.Error(err.Error(), fasthttp.StatusInternalServerError)
+		return
+	}
+	ct.SetStatusCode(fasthttp.StatusOK)
 }
